@@ -1,0 +1,14 @@
+# ide
+.idea/*
+
+# data
+data/*
+prepro/*
+
+# jupyter notebook
+**/.ipynb_checkpoints/*
+**/*.ipynb
+
+# exception
+!**/.keep
+!**/README.md
