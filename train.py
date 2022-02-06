@@ -85,7 +85,7 @@ if __name__ == '__main__':
 
     device = torch.device(f"cuda:{args.cuda_number}" if torch.cuda.is_available() and args.use_gpu else "cpu")
 
-    model = PredictModel(args.input_dim, args.hidden_dim)
+    model = PredictModel(args.input_dim, args.hidden_dim, device)
     model = model.to(device)
 
     rmse_loss = RMSELoss()
