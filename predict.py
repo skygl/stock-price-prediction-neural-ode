@@ -26,6 +26,10 @@ def get_ext_parser():
     # it will be used for loading trained model
     parser.add_argument('--n', type=int, default=5)
 
+    # CUDA Arguments
+    parser.add_argument('--use_gpu', action='store_true')
+    parser.add_argument('--cuda_number', type=int, default=0)
+
     # Model Arguments
     parser.add_argument('--input_dim', type=int, default=5)
     parser.add_argument('--hidden_dim', type=int, default=3)
@@ -54,9 +58,11 @@ if __name__ == '__main__':
 
     prepro_path = os.path.join(PREPRO_DIR, f'split_{":".join(args.split_ratio)}')
 
+    device = torch.device(f"cuda:{args.cuda_number}" if torch.cuda.is_available() and args.use_gpu else "cpu")
+
     model_path = f'./result/{code}_m_{m}_n_{n}_split_{":".join(args.split_ratio)}.pt'
     model = torch.load(model_path)
-    model.device = torch.device('cpu')
+    model.device = device
 
     test_data_path = os.path.join(prepro_path, 'test', f'{code}.csv')
 
@@ -81,6 +87,7 @@ if __name__ == '__main__':
     n = len(data) - m
 
     x = x.unsqueeze(0)
+    x = x.to(device)
 
     with torch.no_grad():
         out, _, _ = model(x, m, n)
@@ -91,7 +98,7 @@ if __name__ == '__main__':
     x = list(range(1, m + n + 1))
 
     sns.lineplot(x=x, y=y.numpy())
-    sns.lineplot(x=x, y=close_price.numpy())
+    sns.lineplot(x=x, y=close_price.cpu().numpy())
     plt.legend(loc='upper left', labels=['true', 'pred'])
 
     plt.xlabel('Date')
