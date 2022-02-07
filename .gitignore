@@ -4,6 +4,7 @@
 # data
 data/*
 prepro/*
+result/*
 
 # jupyter notebook
 **/.ipynb_checkpoints/*
