@@ -49,7 +49,7 @@ def get_ext_parser():
 class RMSELoss(nn.Module):
     def __init__(self):
         super(RMSELoss, self).__init__()
-        self.mse_loss = nn.MSELoss()
+        self.mse_loss = nn.MSELoss(reduction='sum')
 
     def forward(self, pred, true):
         return torch.sqrt(self.mse_loss(pred, true))

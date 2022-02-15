@@ -6,11 +6,19 @@ from torchdiffeq import odeint_adjoint as odeint
 class ODEFunc(nn.Module):
     def __init__(self, hidden_dim):
         super(ODEFunc, self).__init__()
-        self.seq = nn.Sequential(nn.GRUCell(hidden_dim, hidden_dim))
 
-    def forward(self, t, x):
-        out = self.seq(x)
-        return out
+        self.hidden_dim = hidden_dim
+
+        self.seq = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim, bias=True),
+            nn.Softplus(),
+            nn.Linear(hidden_dim, hidden_dim, bias=True),
+        )
+
+    def forward(self, t, h):
+        dh = self.seq(h)
+
+        return dh
 
 
 class ODEBlock(nn.Module):
