@@ -50,16 +50,21 @@ class Encoder(nn.Module):
 
 
 class PredictModel(nn.Module):
-    def __init__(self, input_dim, hidden_dim, device):
+    def __init__(self, input_dim, hidden_dim, latent_dim, device):
         super(PredictModel, self).__init__()
+
+        # hidden_dim: d_m
+        self.hidden_dim = hidden_dim
 
         self.encoder = Encoder(input_dim, hidden_dim)
         self.fc_mu = nn.Linear(hidden_dim, hidden_dim)
         self.fc_logvar = nn.Linear(hidden_dim, hidden_dim)
 
-        self.ode_block = ODEBlock(hidden_dim)
+        self.g = nn.Linear(hidden_dim, latent_dim)
 
-        self.decoder = nn.Linear(hidden_dim, input_dim)
+        self.ode_block = ODEBlock(latent_dim)
+
+        self.decoder = nn.Linear(latent_dim, input_dim)
 
         self.device = device
 
@@ -86,13 +91,15 @@ class PredictModel(nn.Module):
         mu, logvar = self.encode(x)
         z0 = self.reparameterize(mu, logvar)
 
+        y0 = self.g(z0)
+
         # t: [n+m,]
         t = torch.linspace(0, n + m - 1, n + m)
         t = t.to(self.device)
 
-        # ode_out: [n+m, bs, hidden_dim]
-        # ode_out: [bs, n+m, hidden_dim]
-        ode_out = self.ode_block(z0, t)
+        # ode_out: [n+m, bs, latent_dim]
+        # ode_out: [bs, n+m, latent_dim]
+        ode_out = self.ode_block(y0, t)
         ode_out = ode_out.permute(1, 0, 2)
 
         # out: [bs, n+m, input_dim]

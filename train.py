@@ -41,7 +41,8 @@ def get_ext_parser():
 
     # Model Arguments
     parser.add_argument('--input_dim', type=int, default=5)
-    parser.add_argument('--hidden_dim', type=int, default=3)
+    parser.add_argument('--hidden_dim', type=int, default=16)
+    parser.add_argument('--latent_dim', type=int, default=16)
 
     return parser
 
@@ -85,7 +86,7 @@ if __name__ == '__main__':
 
     device = torch.device(f"cuda:{args.cuda_number}" if torch.cuda.is_available() and args.use_gpu else "cpu")
 
-    model = PredictModel(args.input_dim, args.hidden_dim, device)
+    model = PredictModel(args.input_dim, args.hidden_dim, args.latent_dim, device)
     model = model.to(device)
 
     rmse_loss = RMSELoss()
